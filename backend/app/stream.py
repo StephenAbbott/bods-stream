@@ -76,12 +76,19 @@ async def run_stream(broadcaster: Broadcaster, api_key: str, *, timepoint: int |
                     backoff = 2.0
                     log.info("connected to PSC stream")
 
+                    seen = 0
                     async for line in resp.aiter_lines():
+                        seen += 1
                         if not line.strip():
-                            continue  # heartbeat
+                            if seen <= 40:
+                                log.info("stream line %d: heartbeat (blank)", seen)
+                            continue
+                        if seen <= 40:
+                            log.info("stream line %d: %d chars of data", seen, len(line))
                         try:
                             event = json.loads(line)
                         except json.JSONDecodeError:
+                            log.warning("stream line %d: not JSON: %s", seen, line[:120])
                             continue
                         tp = (event.get("event") or {}).get("timepoint")
                         if isinstance(tp, int):
@@ -92,6 +99,8 @@ async def run_stream(broadcaster: Broadcaster, api_key: str, *, timepoint: int |
                             log.exception("failed to map event")
                             continue
                         await broadcaster.publish(message)
+                        if broadcaster.event_count <= 5 or broadcaster.event_count % 100 == 0:
+                            log.info("published event #%d", broadcaster.event_count)
             except asyncio.CancelledError:
                 raise
             except httpx.HTTPError as exc:

@@ -27,6 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from .broadcast import Broadcaster
+from .replay import run_replay
 from .stream import run_stream
 
 logging.basicConfig(level=logging.INFO)
@@ -37,13 +38,17 @@ broadcaster = Broadcaster()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    replay_file = os.environ.get("BODS_STREAM_REPLAY_FILE")
     key = os.environ.get("COMPANIES_HOUSE_STREAM_KEY")
     task: asyncio.Task | None = None
-    if key:
+    if replay_file:
+        rate = float(os.environ.get("BODS_STREAM_REPLAY_RATE", "2"))
+        task = asyncio.create_task(run_replay(broadcaster, replay_file, rate=rate))
+    elif key:
         task = asyncio.create_task(run_stream(broadcaster, key))
         log.info("PSC stream consumer started")
     else:
-        log.warning("COMPANIES_HOUSE_STREAM_KEY not set — running without a live feed")
+        log.warning("set COMPANIES_HOUSE_STREAM_KEY (live) or BODS_STREAM_REPLAY_FILE (replay) — no feed")
     try:
         yield
     finally:
