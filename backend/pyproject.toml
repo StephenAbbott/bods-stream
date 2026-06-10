@@ -1,0 +1,29 @@
+[project]
+name = "bods-stream-backend"
+version = "0.1.0"
+description = "FastAPI SSE relay mapping the Companies House PSC stream to BODS v0.4"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "httpx>=0.27",
+    "sse-starlette>=2.0",
+    "bods-mapper",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.uv]
+package = false
+
+# Local path to the shared mapping package (sibling repo).
+[tool.uv.sources]
+bods-mapper = { path = "../../bods-mapper", editable = true }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

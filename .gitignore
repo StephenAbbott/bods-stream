@@ -1,0 +1,12 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.env
+uv.lock
+# node
+node_modules/
+frontend/dist/
+*.local
+pytest-cache-files-*
