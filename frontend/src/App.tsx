@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useSSE } from "./lib/useSSE";
 import { EventCard } from "./components/EventCard";
 
 export default function App() {
-  const { messages, connected, count } = useSSE("/api/events");
+  const [paused, setPaused] = useState(false);
+  const { messages, connected, count } = useSSE("/api/events", { paused });
 
   return (
     <div className="app">
@@ -18,13 +20,20 @@ export default function App() {
           <span className={`dot ${connected ? "on" : "off"}`} />
           <span>{connected ? "live" : "connecting…"}</span>
           <span className="count">{count.toLocaleString()} events</span>
+          <button className="pause" onClick={() => setPaused((p) => !p)}>
+            {paused ? "▶ Resume" : "⏸ Pause"}
+          </button>
         </div>
       </header>
 
+      {paused && (
+        <div className="paused-banner">
+          Feed paused — {count.toLocaleString()} events seen and still counting. Resume to catch up.
+        </div>
+      )}
+
       {messages.length === 0 && (
-        <p className="empty">
-          Waiting for the next beneficial-ownership change to be filed at Companies House…
-        </p>
+        <p className="empty">Waiting for the next beneficial-ownership change to be filed…</p>
       )}
 
       <main className="feed">

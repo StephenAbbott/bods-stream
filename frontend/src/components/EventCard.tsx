@@ -1,61 +1,75 @@
-import type { BodsStatement, StreamMessage } from "../types";
+import { useState } from "react";
+import type { StreamMessage } from "../types";
+import { summarise, toEventView } from "../lib/eventView";
+import { BovsDiagram } from "./BovsDiagram";
 import { LifecycleBadge } from "./LifecycleBadge";
 
-function relationship(bods: BodsStatement[]): BodsStatement | undefined {
-  return bods.find((s) => s.recordType === "relationship");
-}
-
-function partyName(bods: BodsStatement[]): string {
-  const person = bods.find((s) => s.recordType === "person");
-  if (person) {
-    const names = (person.recordDetails as any)?.names ?? [];
-    return names[0]?.fullName ?? "Unknown person";
-  }
-  // Corporate PSC: the interested-party entity is the non-subject entity.
-  const rel = relationship(bods);
-  const ipId = (rel?.recordDetails as any)?.interestedParty;
-  const entity = bods.find((s) => s.recordType === "entity" && s.statementId === ipId);
-  return ((entity?.recordDetails as any)?.name as string) ?? "—";
-}
-
-function interestSummary(bods: BodsStatement[]): string {
-  const interests = ((relationship(bods)?.recordDetails as any)?.interests ?? []) as any[];
-  return interests.map((i) => i.details ?? i.type).join(" · ") || "—";
-}
-
-const KIND_LABEL: Record<string, string> = {
-  "individual-person-with-significant-control": "Individual PSC",
-  "corporate-entity-person-with-significant-control": "Corporate PSC",
-  "legal-person-person-with-significant-control": "Legal person PSC",
-  "super-secure-person-with-significant-control": "Super-secure PSC",
-};
+const MAX_CHIPS = 6;
 
 export function EventCard({ msg }: { msg: StreamMessage }) {
-  const status = relationship(msg.bods)?.recordStatus ?? "new";
-  const kind = msg.psc_kind ? KIND_LABEL[msg.psc_kind] ?? msg.psc_kind : "PSC";
+  const [open, setOpen] = useState(false);
+  const view = toEventView(msg);
+
+  if (!view) {
+    return (
+      <article className="card muted">
+        <header className="card-head">
+          <span className="kind">{msg.event_type ?? "event"} — no mappable PSC</span>
+          <span className="ts">{msg.published_at ?? ""}</span>
+        </header>
+      </article>
+    );
+  }
+
+  const shownChips = view.interests.slice(0, MAX_CHIPS);
+  const extraChips = view.interests.length - shownChips.length;
 
   return (
-    <article className="card">
+    <article className={`card lc-${view.lifecycle}`}>
       <header className="card-head">
-        <LifecycleBadge status={status} />
-        <span className="party">{partyName(msg.bods)}</span>
-        <span className="kind">{kind}</span>
-        {msg.schema_valid && <span className="valid" title="Validated against BODS v0.4">✓ BODS v0.4</span>}
+        <LifecycleBadge status={view.lifecycle} />
+        <span className="summary">{summarise(view)}</span>
+        {msg.schema_valid && (
+          <span className="valid" title="Every statement validated against BODS v0.4">✓ BODS v0.4</span>
+        )}
         <span className="ts">{msg.published_at ?? ""}</span>
       </header>
 
-      <p className="interest">{interestSummary(msg.bods)}</p>
+      {/* one interest → readable descriptor; several → compact chips (avoids a wall of text) */}
+      {view.interests.length === 1 ? (
+        <p className="interest-detail">{view.primary.details}</p>
+      ) : (
+        <div className="chips">
+          {shownChips.map((i, idx) => (
+            <span key={idx} className="chip">
+              {i.type}
+              {i.shareBand ? ` · ${i.shareBand}` : ""}
+            </span>
+          ))}
+          {extraChips > 0 && <span className="chip more">+{extraChips}</span>}
+        </div>
+      )}
 
-      <div className="split">
-        <div className="pane">
-          <div className="pane-label">Raw Companies House PSC event</div>
-          <pre>{JSON.stringify(msg.raw, null, 2)}</pre>
+      <BovsDiagram view={view} />
+
+      <button className="data-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <span className="data-ico" aria-hidden="true">{"{ }"}</span>
+        {open ? "Hide data" : "View raw ↔ BODS data"}
+        <span className="chev" aria-hidden="true">{open ? "▾" : "▸"}</span>
+      </button>
+
+      {open && (
+        <div className="split">
+          <div className="pane">
+            <div className="pane-label">Raw Companies House PSC event</div>
+            <pre>{JSON.stringify(msg.raw, null, 2)}</pre>
+          </div>
+          <div className="pane">
+            <div className="pane-label">BODS v0.4 statements</div>
+            <pre>{JSON.stringify(msg.bods, null, 2)}</pre>
+          </div>
         </div>
-        <div className="pane">
-          <div className="pane-label">BODS v0.4 statements</div>
-          <pre>{JSON.stringify(msg.bods, null, 2)}</pre>
-        </div>
-      </div>
+      )}
     </article>
   );
 }

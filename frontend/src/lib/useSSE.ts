@@ -2,14 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import type { StreamMessage } from "../types";
 
 /**
- * Subscribe to the backend SSE feed. Keeps the most recent `max` messages
- * (newest first) plus a running total and connection state.
+ * Subscribe to the backend SSE feed. While `paused`, the running total keeps
+ * climbing (you still feel the firehose) but the rendered list is frozen so you
+ * can study an event.
  */
-export function useSSE(url: string, max = 60) {
+export function useSSE(url: string, opts: { max?: number; paused?: boolean } = {}) {
+  const { max = 60, paused = false } = opts;
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [count, setCount] = useState(0);
   const total = useRef(0);
+  const pausedRef = useRef(paused);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
 
   useEffect(() => {
     const es = new EventSource(url);
@@ -19,7 +26,9 @@ export function useSSE(url: string, max = 60) {
       const msg = JSON.parse((e as MessageEvent).data) as StreamMessage;
       total.current += 1;
       setCount(total.current);
-      setMessages((prev) => [msg, ...prev].slice(0, max));
+      if (!pausedRef.current) {
+        setMessages((prev) => [msg, ...prev].slice(0, max));
+      }
     });
     return () => es.close();
   }, [url, max]);

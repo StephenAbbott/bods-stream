@@ -76,3 +76,55 @@ body {
 }
 
 .app-foot { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+/* ---- redesign: glanceable card + BOVS diagram + controls ---- */
+
+.pause {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 12px; margin-left: 6px;
+}
+.pause:hover { border-color: var(--accent); }
+
+.paused-banner {
+  background: rgba(79, 157, 255, .12); border: 1px solid var(--accent);
+  color: var(--text); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;
+}
+
+/* lifecycle accent down the left edge of each card */
+.card { border-left: 3px solid var(--line); }
+.card.lc-new { border-left-color: var(--new); }
+.card.lc-updated { border-left-color: var(--updated); }
+.card.lc-closed { border-left-color: var(--closed); }
+.card.muted { opacity: .55; }
+
+.summary { font-weight: 600; }
+.interest-detail { color: var(--muted); font-size: 13px; margin: 8px 0 2px; }
+
+/* BOVS mini-diagram */
+.bovs { width: 100%; height: auto; display: block; margin: 4px 0; }
+.bovs text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.bovs-edge { fill: var(--muted); font-size: 9.5px; }
+.bovs-ceased { fill: var(--closed); font-size: 9px; }
+.bovs-flag { font-size: 12px; }
+.bovs-name { fill: var(--text); font-size: 8px; }
+.bovs-name.strong { font-weight: 500; }
+.bovs-sub { fill: var(--muted); font-size: 8.5px; }
+
+/* multiple interests, compact */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
+.chip {
+  font-size: 11px; color: var(--text); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px;
+}
+.chip.more { color: var(--muted); }
+
+/* collapsible raw/BODS detail */
+.data-toggle {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
+  padding: 5px 12px; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+.data-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.data-ico { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--accent); font-weight: 700; }
+.chev { color: var(--muted); }
+.split { margin-top: 8px; }
