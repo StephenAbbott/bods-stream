@@ -23,7 +23,7 @@ package = false
 
 # Local path to the shared mapping package (sibling repo).
 [tool.uv.sources]
-bods-mapper = { path = "../../bods-mapper", editable = true }
+bods-mapper = { git = "https://github.com/StephenAbbott/bods-mapper.git" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
