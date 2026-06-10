@@ -17,6 +17,11 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+
+# Load backend/.env (COMPANIES_HOUSE_STREAM_KEY, BODS_STREAM_CORS_ORIGIN) if present.
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
