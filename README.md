@@ -3,8 +3,8 @@
 **Watch UK beneficial ownership change in real time — as open, standardised data.**
 
 bods-stream consumes the [Companies House streaming API](https://developer-specs.company-information.service.gov.uk/streaming-api/reference/persons-with-significant-control/stream)
-and turns every live PSC (persons with significant control) change into a
-[BODS v0.4](https://standard.openownership.org/en/0.4.0/) statement on screen, the
+and turns every live PSC (persons with significant control) change into
+[Beneficial Ownership Data Standard (BODS) v0.4](https://standard.openownership.org/en/0.4.0/) statements on screen, the
 moment it's filed.
 
 Most corporate and beneficial-ownership registers don't offer a streaming API —
