@@ -15,6 +15,8 @@ import logging
 
 import httpx
 
+from .status import STATUS
+
 log = logging.getLogger("bods_stream.companies")
 
 _REST = "https://api.company-information.service.gov.uk"
@@ -39,11 +41,15 @@ class CompanyNames:
             return self._cache[number]
         try:
             r = await self._client.get(f"{_REST}/company/{number}", auth=(self._key, ""))
+            STATUS.names_last_status = r.status_code
             if r.status_code == 200:
                 name = r.json().get("company_name")
                 if name:
+                    STATUS.names_resolved += 1
                     self._cache[number] = name
                     return name
+            elif r.status_code in (401, 403):
+                log.warning("company-name REST key rejected (HTTP %d) — check COMPANIES_HOUSE_API_KEY", r.status_code)
         except httpx.HTTPError:
             log.debug("company name lookup failed for %s", number)
         return None

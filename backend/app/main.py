@@ -31,6 +31,7 @@ from sse_starlette.sse import EventSourceResponse
 from .broadcast import Broadcaster
 from .companies import CompanyNames
 from .replay import run_replay
+from .status import STATUS
 from .stream import run_stream
 
 logging.basicConfig(level=logging.INFO)
@@ -48,13 +49,18 @@ async def lifespan(app: FastAPI):
     names = CompanyNames(os.environ.get("COMPANIES_HOUSE_API_KEY"))
     log.info("company-name enrichment: %s", "on" if names.enabled else "off (set COMPANIES_HOUSE_API_KEY)")
     task: asyncio.Task | None = None
+    STATUS.names_enabled = names.enabled
     if replay_file:
+        STATUS.mode = "replay"
         rate = float(os.environ.get("BODS_STREAM_REPLAY_RATE", "2"))
         task = asyncio.create_task(run_replay(broadcaster, replay_file, rate=rate, names=names))
     elif key:
+        STATUS.mode = "live"
         task = asyncio.create_task(run_stream(broadcaster, key, names=names))
         log.info("PSC stream consumer started")
     else:
+        STATUS.mode = "idle"
+        STATUS.last_error = "no COMPANIES_HOUSE_STREAM_KEY and no BODS_STREAM_REPLAY_FILE"
         log.warning("set COMPANIES_HOUSE_STREAM_KEY (live) or BODS_STREAM_REPLAY_FILE (replay) — no feed")
     try:
         yield
@@ -80,7 +86,11 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health() -> dict:
-    return {"status": "ok", "events_seen": broadcaster.event_count}
+    return {
+        "status": "ok",
+        "events_seen": broadcaster.event_count,
+        "stream": STATUS.as_dict(),
+    }
 
 
 @app.get("/api/recent")

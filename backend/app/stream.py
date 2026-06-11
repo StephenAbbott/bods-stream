@@ -25,6 +25,7 @@ from .broadcast import Broadcaster
 from .companies import CompanyNames
 from .privacy import redact_event
 from .risk import assess
+from .status import STATUS
 
 log = logging.getLogger("bods_stream.stream")
 
@@ -113,13 +114,18 @@ async def run_stream(
             try:
                 async with client.stream("GET", STREAM_URL, params=params, auth=(api_key, "")) as resp:
                     if resp.status_code == 401:
+                        STATUS.on_disconnect("401 Unauthorized — check COMPANIES_HOUSE_STREAM_KEY")
+                        STATUS.last_status_code = 401
                         log.error("401 Unauthorized — check COMPANIES_HOUSE_STREAM_KEY")
                         return
                     if resp.status_code == 416:
+                        STATUS.last_status_code = 416
                         log.warning("timepoint too old — restarting live")
                         last_timepoint = None
                         continue
                     if resp.status_code == 429:
+                        STATUS.on_disconnect("429 rate-limited")
+                        STATUS.last_status_code = 429
                         retry = float(resp.headers.get("retry-after", backoff))
                         log.warning("rate-limited; sleeping %.0fs", retry)
                         await asyncio.sleep(retry)
@@ -127,11 +133,13 @@ async def run_stream(
                         continue
                     resp.raise_for_status()
                     backoff = 2.0
+                    STATUS.on_connect()
                     log.info("connected to PSC stream")
 
                     seen = 0
                     async for line in resp.aiter_lines():
                         seen += 1
+                        STATUS.on_line()
                         if not line.strip():
                             if seen <= 40:
                                 log.info("stream line %d: heartbeat (blank)", seen)
@@ -152,11 +160,14 @@ async def run_stream(
                             log.exception("failed to map event")
                             continue
                         await broadcaster.publish(message)
+                        STATUS.on_event()
                         if broadcaster.event_count <= 5 or broadcaster.event_count % 100 == 0:
                             log.info("published event #%d", broadcaster.event_count)
             except asyncio.CancelledError:
                 raise
             except httpx.HTTPError as exc:
+                STATUS.on_disconnect(f"{type(exc).__name__}: {exc}")
+                STATUS.reconnects += 1
                 log.warning("stream dropped (%s) — reconnecting in %.0fs", type(exc).__name__, backoff)
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 60.0)
