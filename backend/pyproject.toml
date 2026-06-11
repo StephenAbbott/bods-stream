@@ -21,7 +21,8 @@ dev = [
 [tool.uv]
 package = false
 
-# Local path to the shared mapping package (sibling repo).
+# Shared mapping package — git source so deployment can build from this repo
+# alone. For local bods-mapper editing: `uv pip install -e ../../bods-mapper`.
 [tool.uv.sources]
 bods-mapper = { git = "https://github.com/StephenAbbott/bods-mapper.git" }
 

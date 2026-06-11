@@ -1,0 +1,21 @@
+# Render Blueprint for bods-stream.
+# Push this with the repo, then in Render: New + → Blueprint → pick this repo.
+services:
+  - type: web
+    name: bods-stream
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # free spins down after ~15 min idle (the stream stops + buffer empties, so a
+    # cold visitor waits for the next live event). Use "starter" for an always-on
+    # public demo, or keep "free" + an external uptime pinger on /api/health.
+    plan: free
+    # MUST stay 1: a single in-process stream connection + in-memory state.
+    numInstances: 1
+    healthCheckPath: /api/health
+    envVars:
+      - key: COMPANIES_HOUSE_STREAM_KEY   # streaming key — set in the dashboard (secret)
+        sync: false
+      - key: COMPANIES_HOUSE_API_KEY      # Public Data API (REST) key for company names
+        sync: false
+      - key: BODS_STREAM_CORS_ORIGIN
+        value: "*"

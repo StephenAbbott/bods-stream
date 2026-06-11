@@ -16,6 +16,7 @@ import json
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -24,6 +25,7 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
 from .broadcast import Broadcaster
@@ -93,3 +95,14 @@ async def events():
             yield {"event": "psc", "data": json.dumps(message)}
 
     return EventSourceResponse(event_generator())
+
+
+# Serve the built frontend in production (same origin as /api, so SSE needs no
+# CORS or proxy). Mounted last so the /api routes above take precedence. In dev
+# the build is absent and Vite serves the frontend instead.
+_static_dir = Path(
+    os.environ.get("BODS_STREAM_STATIC_DIR", str(Path(__file__).resolve().parent.parent / "static"))
+)
+if _static_dir.is_dir():
+    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="static")
+    log.info("serving frontend from %s", _static_dir)
