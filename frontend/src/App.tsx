@@ -13,10 +13,11 @@ export default function App() {
     <div className="app">
       <header className="app-head">
         <div>
-          <h1>bods-stream</h1>
+          <h1>BODS stream</h1>
           <p className="tagline">
-            UK beneficial ownership changing in real time — every Companies House PSC
-            event, mapped live to the Beneficial Ownership Data Standard (BODS) v0.4.
+            Watch UK beneficial ownership changing in real time — every Companies House
+            Person with Significant Control (PSC) event, mapped live to the Beneficial
+            Ownership Data Standard.
           </p>
         </div>
         <div className="stats">

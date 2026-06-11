@@ -24,15 +24,15 @@ function countryName(code: string): string {
   }
 }
 
-/** Live tally of individual-PSC nationalities — top 15 by count. */
+/** Live tally of individual-PSC nationalities — top 20 by count. */
 export function NationalityBar({ stats }: { stats: Stats }) {
   const entries = Object.entries(stats.nationalities)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 15);
+    .slice(0, 20);
   if (entries.length === 0) return null;
 
   return (
-    <section className="nationalities" aria-label="PSC nationalities (top 15)">
+    <section className="nationalities" aria-label="PSC nationalities (top 20)">
       <span className="nat-title">PSC nationalities</span>
       {entries.map(([code, n]) => (
         <span key={code} className="nat-chip" title={countryName(code)}>
