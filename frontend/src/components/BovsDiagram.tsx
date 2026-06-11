@@ -11,6 +11,24 @@ function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 
+/** Split a name onto at most two lines so it fits under the node. */
+function wrapName(name: string, max = 13): string[] {
+  if (name.length <= max) return [name];
+  const words = name.split(/\s+/);
+  if (words.length === 1) return [name.slice(0, max), truncate(name.slice(max), max)];
+  let line1 = "";
+  let i = 0;
+  while (i < words.length) {
+    const cand = line1 ? `${line1} ${words[i]}` : words[i];
+    if (cand.length > max && line1) break;
+    line1 = cand;
+    i++;
+  }
+  let line2 = words.slice(i).join(" ");
+  if (line2.length > max) line2 = truncate(line2, max);
+  return line2 ? [line1, line2] : [line1];
+}
+
 /** A real flag SVG (flag-icons set, served from /flags/<code>.svg), framed. */
 function FlagImg({ code, x, y, w = 18 }: { code?: string; x: number; y: number; w?: number }) {
   if (!code) return null;
@@ -88,13 +106,31 @@ export function BovsDiagram({ view }: { view: EventView }) {
       {/* nationality flag, top-right of the person node */}
       {isPerson && <FlagImg code={view.nationalityCode} x={67} y={23} w={20} />}
       {view.idVerified && <VerifiedBadge cx={78} cy={76} />}
-      <text x="54" y="103" textAnchor="middle" className="bovs-name">{truncate(view.partyName, 15)}</text>
+      {(() => {
+        const lines = wrapName(view.partyName, 13);
+        return (
+          <text x="54" y={lines.length > 1 ? 92 : 99} textAnchor="middle" className="bovs-name">
+            {lines.map((ln, i) => (
+              <tspan key={i} x="54" dy={i === 0 ? 0 : 9}>{ln}</tspan>
+            ))}
+          </text>
+        );
+      })()}
 
       {/* subject company */}
       <rect x="276" y="26" width="172" height="56" rx="8" fill="#ffffff" stroke={color} strokeWidth="2" />
       {/* jurisdiction flag, top-left corner of the company box */}
       <FlagImg code={view.jurisdiction?.code} x={285} y={33} w={18} />
-      <text x="368" y="51" textAnchor="middle" className="bovs-name strong">{truncate(view.subjectName, 15)}</text>
+      {(() => {
+        const lines = wrapName(view.subjectName, 18);
+        return (
+          <text x="368" y={lines.length > 1 ? 44 : 50} textAnchor="middle" className="bovs-name strong">
+            {lines.map((ln, i) => (
+              <tspan key={i} x="368" dy={i === 0 ? 0 : 9}>{ln}</tspan>
+            ))}
+          </text>
+        );
+      })()}
       {view.subjectCode && (
         <text x="368" y="69" textAnchor="middle" className="bovs-sub">{view.subjectCode}</text>
       )}

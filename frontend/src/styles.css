@@ -46,16 +46,16 @@ h1 { font-family: var(--font-head); color: var(--text); }
 .app-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
 .tagline { margin: 8px 0 0; color: var(--muted); max-width: 660px; }
 
-.stats { display: flex; align-items: center; gap: 10px; color: var(--muted); white-space: nowrap; }
-.count { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.stats { display: flex; align-items: center; gap: 12px; color: var(--muted); white-space: nowrap; }
+.count { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 22px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .dot.on { background: var(--new); box-shadow: 0 0 0 3px rgba(31, 157, 78, .18); }
 .dot.off { background: var(--muted); }
 
 .pause {
   background: #fff; color: var(--text); border: 1px solid var(--line);
-  border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px; font-family: var(--font-body);
-  margin-left: 6px;
+  border-radius: 8px; padding: 9px 20px; cursor: pointer; font-size: 15px; font-weight: 600;
+  font-family: var(--font-body); margin-left: 8px;
 }
 .pause:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -65,6 +65,36 @@ h1 { font-family: var(--font-head); color: var(--text); }
 }
 
 .empty { color: var(--muted); padding: 44px 0; text-align: center; }
+
+/* live insight tiles */
+.insights { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-card); padding: 12px 16px; min-width: 116px; flex: 1 1 auto;
+}
+.stat-val { font-family: var(--font-head); font-size: 22px; font-weight: 700; line-height: 1.1; }
+.stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.splitbar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 8px; background: var(--panel-2); }
+.splitbar-ind { background: var(--accent); }
+.splitbar-corp { background: var(--new); }
+.stat.wide { flex: 2 1 260px; }
+.jur { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.jur-chip { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.jur-chip b { color: var(--accent); }
+
+/* nationality flag tally bar */
+.nationalities {
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;
+  overflow-x: auto; scrollbar-width: thin;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-card); padding: 12px 16px; margin-bottom: 18px;
+}
+.nationalities::-webkit-scrollbar { height: 6px; }
+.nationalities::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.nat-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-right: 4px; flex-shrink: 0; }
+.nat-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; flex-shrink: 0; }
+.nat-flag { font-size: 15px; line-height: 1; }
+.nat-count { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .feed { display: flex; flex-direction: column; gap: 14px; }
 

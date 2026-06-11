@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useSSE } from "./lib/useSSE";
 import { EventCard } from "./components/EventCard";
+import { InsightBar } from "./components/InsightBar";
+import { NationalityBar } from "./components/NationalityBar";
 
 export default function App() {
   const [paused, setPaused] = useState(false);
-  const { messages, connected, count } = useSSE("/api/events", { paused });
+  const { messages, connected, count, stats } = useSSE("/api/events", { paused });
 
   return (
     <div className="app">
@@ -25,6 +27,9 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      <InsightBar stats={stats} />
+      <NationalityBar stats={stats} />
 
       {paused && (
         <div className="paused-banner">
