@@ -7,18 +7,27 @@ const LIFECYCLE_COLOR: Record<string, string> = {
   closed: "#be123c",
 };
 
-/** 2-letter ISO country code -> flag emoji. */
-function flag(code?: string): string {
-  if (!code || code.length !== 2) return "";
-  const A = 0x1f1e6;
-  return String.fromCodePoint(
-    A + code.toUpperCase().charCodeAt(0) - 65,
-    A + code.toUpperCase().charCodeAt(1) - 65
-  );
-}
-
 function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
+/** A real flag SVG (flag-icons set, served from /flags/<code>.svg), framed. */
+function FlagImg({ code, x, y, w = 18 }: { code?: string; x: number; y: number; w?: number }) {
+  if (!code) return null;
+  const h = (w * 3) / 4; // flags are 4:3
+  return (
+    <g>
+      <image
+        href={`/flags/${code.toLowerCase()}.svg`}
+        x={x} y={y} width={w} height={h}
+        preserveAspectRatio="xMidYMid meet"
+        onError={(e) => {
+          (e.currentTarget as SVGImageElement).style.display = "none";
+        }}
+      />
+      <rect x={x} y={y} width={w} height={h} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.7" />
+    </g>
+  );
 }
 
 /** White-tick-on-green-circle, mirroring Companies House's verified-identity mark. */
@@ -43,7 +52,6 @@ export function BovsDiagram({ view }: { view: EventView }) {
   const closed = view.lifecycle === "closed";
   const isPerson = view.partyType === "person";
   const icon = BOVS_ICONS[view.partyIconKey] ?? BOVS_ICONS.knownPerson;
-  const natFlag = flag(view.nationalityCode);
 
   const edgeLabel =
     view.interests.length > 1
@@ -77,22 +85,18 @@ export function BovsDiagram({ view }: { view: EventView }) {
         <rect x="32" y="28" width="52" height="52" rx="7" fill={color} />
       )}
       <image href={icon} x="40" y="36" width="36" height="36" />
-      {natFlag && (
-        <>
-          <circle cx="78" cy="33" r="10" fill="#fff" stroke={color} strokeWidth="1" />
-          <text x="78" y="37.5" textAnchor="middle" className="bovs-flag">{natFlag}</text>
-        </>
-      )}
-      {view.idVerified && <VerifiedBadge cx={78} cy={75} />}
+      {/* nationality flag, top-right of the person node */}
+      {isPerson && <FlagImg code={view.nationalityCode} x={67} y={23} w={20} />}
+      {view.idVerified && <VerifiedBadge cx={78} cy={76} />}
       <text x="54" y="103" textAnchor="middle" className="bovs-name">{truncate(view.partyName, 15)}</text>
 
       {/* subject company */}
       <rect x="276" y="26" width="172" height="56" rx="8" fill="#1f232c" stroke={color} strokeWidth="2" />
-      <text x="362" y="51" textAnchor="middle" className="bovs-name strong">
-        {flag(view.jurisdiction?.code)} {truncate(view.subjectName, 15)}
-      </text>
+      {/* jurisdiction flag, top-left corner of the company box */}
+      <FlagImg code={view.jurisdiction?.code} x={285} y={33} w={18} />
+      <text x="368" y="51" textAnchor="middle" className="bovs-name strong">{truncate(view.subjectName, 15)}</text>
       {view.subjectCode && (
-        <text x="362" y="69" textAnchor="middle" className="bovs-sub">{view.subjectCode}</text>
+        <text x="368" y="69" textAnchor="middle" className="bovs-sub">{view.subjectCode}</text>
       )}
     </svg>
   );
