@@ -37,8 +37,8 @@ which a static snapshot can never show.
 - **Pause / play** with a live counter that keeps climbing while paused.
 - **Live insight bar** — individual vs corporate split, cessation rate, identity-
   verification rate, and the most-active ("prolific") PSC spotted today.
-- **Risk signals** (structural, no external calls) — FATF black/grey list, non-EU
-  jurisdiction, trust/arrangement, nominee, super-secure (opaque), and the
+- **Risk signals** (structural, no external calls) — FATF black/grey list,
+  trust/arrangement, nominee, super-secure (opaque), and the
   source's own sanctioned flag — as card chips and a live risk-rate box.
 - **Prolific PSC** — a stream-native signal: when one person turns up as a PSC of
   several companies this session, the card flags it and the insight bar tracks
@@ -169,7 +169,7 @@ backend/app/
   companies.py   company-name enrichment via the Public Data API (cached)
   lifecycle.py   per-PSC new/updated/closed state (incl. deleted-event closes)
   prolific.py    person → distinct-companies tracker
-  risk.py        structural risk signals (FATF, non-EU, trust, nominee, opaque, sanctioned)
+  risk.py        structural risk signals (FATF, trust, nominee, opaque, sanctioned)
   privacy.py     address/DOB redaction at ingress
   broadcast.py   in-memory fan-out + rolling replay buffer
   replay.py      feed a captured file through the live pipeline

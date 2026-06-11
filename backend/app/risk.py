@@ -10,8 +10,6 @@ appropriate for an auto-scrolling public page.
 Signals:
   FATF_BLACK_LIST / FATF_GREY_LIST  — corporate PSC registered in a FATF-listed
                                       jurisdiction (lists current Feb 2026).
-  NON_EU_JURISDICTION               — corporate PSC registered outside the EU/EEA
-                                      and the UK (a genuinely foreign owner).
   TRUST_OR_ARRANGEMENT              — control via a trust (natures) or a trust/
                                       foundation legal form.
   NOMINEE                           — registered-owner-as-nominee natures (ROE).
@@ -32,15 +30,6 @@ FATF_GREY_CODES = {
     "MC", "NA", "NP", "PG", "SS", "SY", "VE", "VN", "VG", "YE",
 }
 
-# EU + EEA. A UK corporate owner of a UK company isn't a cross-border risk, so GB
-# is treated as allowed too — NON_EU fires only for genuinely foreign owners.
-_EU_EEA = {
-    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
-    "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
-    "SI", "ES", "SE", "IS", "LI", "NO",
-}
-_ALLOWED_JURISDICTIONS = _EU_EEA | {"GB"}
-
 _TRUST_LEGAL_FORMS = ("trust", "stiftung", "anstalt", "fideicomiso", "treuhand", "foundation")
 
 
@@ -57,7 +46,7 @@ def assess(event: dict[str, Any]) -> list[dict[str, str]]:
     natures = " ".join(data.get("natures_of_control") or []).lower()
     ident = data.get("identification") or {}
 
-    # Jurisdiction of a corporate / legal-person PSC (the foreign-owner signal).
+    # Jurisdiction of a corporate / legal-person PSC (FATF-list check).
     country = (ident.get("country_registered") or "").strip()
     code = (country_object(country) or {}).get("code") if country else None
     if code:
@@ -65,8 +54,6 @@ def assess(event: dict[str, Any]) -> list[dict[str, str]]:
             signals.append(_sig("FATF_BLACK_LIST", "FATF black list", "high"))
         elif code in FATF_GREY_CODES:
             signals.append(_sig("FATF_GREY_LIST", "FATF grey list", "medium"))
-        if code not in _ALLOWED_JURISDICTIONS:
-            signals.append(_sig("NON_EU_JURISDICTION", "Non-EU jurisdiction", "low"))
 
     # Trust / arrangement: via the nature codes or a trust/foundation legal form.
     legal_form = (ident.get("legal_form") or "").lower()
