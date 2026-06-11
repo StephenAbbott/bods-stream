@@ -24,6 +24,30 @@ from .stream import process_event
 log = logging.getLogger("bods_stream.replay")
 
 
+def _pin_statement_dates(statements: list[dict], published_at: str) -> None:
+    """Stamp BODS statements with the event's capture time, not "now".
+
+    The mapper defaults ``statementDate`` / ``publicationDate`` / ``retrievedAt``
+    to today/now at map time. That's right for the live stream, but in replay it
+    makes captured history look like it was filed today. Re-point those three
+    fields at the event's own ``published_at`` so replayed statements read as the
+    capture date. Live mode never calls this, so its timestamps stay current.
+    """
+    day = published_at[:10]  # YYYY-MM-DD
+    retrieved = published_at if "T" in published_at else f"{published_at}T00:00:00"
+    if not retrieved.endswith("Z"):
+        retrieved += "Z"
+    for s in statements:
+        if "statementDate" in s:
+            s["statementDate"] = day
+        pub = s.get("publicationDetails")
+        if isinstance(pub, dict):
+            pub["publicationDate"] = day
+        src = s.get("source")
+        if isinstance(src, dict):
+            src["retrievedAt"] = retrieved
+
+
 async def run_replay(
     broadcaster: Broadcaster,
     path: str,
@@ -55,6 +79,9 @@ async def run_replay(
                 except Exception:  # noqa: BLE001
                     log.exception("replay: failed to map event")
                     continue
+                published_at = (event.get("event") or {}).get("published_at")
+                if published_at and message.get("bods"):
+                    _pin_statement_dates(message["bods"], published_at)
                 await broadcaster.publish(message)
                 STATUS.on_event()
                 if delay:
