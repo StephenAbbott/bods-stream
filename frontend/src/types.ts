@@ -7,6 +7,12 @@ export interface BodsStatement {
   [k: string]: unknown;
 }
 
+export interface RiskSignal {
+  code: string;
+  label: string;
+  level: "high" | "medium" | "low";
+}
+
 export interface StreamMessage {
   event_type: string | null;
   timepoint: number | null;
@@ -16,4 +22,5 @@ export interface StreamMessage {
   raw: unknown;
   bods: BodsStatement[];
   schema_valid: boolean;
+  risk?: RiskSignal[];
 }

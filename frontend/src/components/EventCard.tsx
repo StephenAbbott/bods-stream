@@ -35,6 +35,16 @@ export function EventCard({ msg }: { msg: StreamMessage }) {
         <span className="ts">{msg.published_at ?? ""}</span>
       </header>
 
+      {msg.risk && msg.risk.length > 0 && (
+        <div className="risks">
+          {msg.risk.map((r) => (
+            <span key={r.code} className={`risk risk-${r.level}`} title={r.code}>
+              {r.label}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* one interest → readable descriptor; several → compact chips (avoids a wall of text) */}
       {view.interests.length === 1 ? (
         <p className="interest-detail">{view.primary.details}</p>

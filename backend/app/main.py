@@ -27,6 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from .broadcast import Broadcaster
+from .companies import CompanyNames
 from .replay import run_replay
 from .stream import run_stream
 
@@ -40,12 +41,16 @@ broadcaster = Broadcaster()
 async def lifespan(app: FastAPI):
     replay_file = os.environ.get("BODS_STREAM_REPLAY_FILE")
     key = os.environ.get("COMPANIES_HOUSE_STREAM_KEY")
+    # Company-name enrichment via the CH Public Data API (REST). Optional: needs
+    # the REST key, which is separate from the streaming key.
+    names = CompanyNames(os.environ.get("COMPANIES_HOUSE_API_KEY"))
+    log.info("company-name enrichment: %s", "on" if names.enabled else "off (set COMPANIES_HOUSE_API_KEY)")
     task: asyncio.Task | None = None
     if replay_file:
         rate = float(os.environ.get("BODS_STREAM_REPLAY_RATE", "2"))
-        task = asyncio.create_task(run_replay(broadcaster, replay_file, rate=rate))
+        task = asyncio.create_task(run_replay(broadcaster, replay_file, rate=rate, names=names))
     elif key:
-        task = asyncio.create_task(run_stream(broadcaster, key))
+        task = asyncio.create_task(run_stream(broadcaster, key, names=names))
         log.info("PSC stream consumer started")
     else:
         log.warning("set COMPANIES_HOUSE_STREAM_KEY (live) or BODS_STREAM_REPLAY_FILE (replay) — no feed")
@@ -58,6 +63,7 @@ async def lifespan(app: FastAPI):
                 await task
             except asyncio.CancelledError:
                 pass
+        await names.aclose()
 
 
 app = FastAPI(title="bods-stream", version="0.1.0", lifespan=lifespan)

@@ -12,12 +12,15 @@ export interface Stats {
   idVerified: number;
   jurisdictions: Record<string, number>; // corporate PSC country_registered tallies
   nationalities: Record<string, number>; // individual PSC nationality tallies, by ISO code
+  flagged: number; // events with >= 1 risk signal
+  riskCounts: Record<string, number>; // per risk-signal-code tallies
 }
 
 export function emptyStats(): Stats {
   return {
     total: 0, individual: 0, corporate: 0, other: 0,
     ceased: 0, idChecked: 0, idVerified: 0, jurisdictions: {}, nationalities: {},
+    flagged: 0, riskCounts: {},
   };
 }
 
@@ -47,6 +50,13 @@ export function accumulate(s: Stats, msg: StreamMessage): void {
     if (j) s.jurisdictions[j] = (s.jurisdictions[j] ?? 0) + 1;
   } else {
     s.other += 1;
+  }
+
+  if (msg.risk && msg.risk.length > 0) {
+    s.flagged += 1;
+    for (const r of msg.risk) {
+      s.riskCounts[r.code] = (s.riskCounts[r.code] ?? 0) + 1;
+    }
   }
 }
 

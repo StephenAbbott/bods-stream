@@ -17,13 +17,20 @@ import logging
 from pathlib import Path
 
 from .broadcast import Broadcaster
-from .privacy import redact_event
-from .stream import _build_message
+from .companies import CompanyNames
+from .stream import process_event
 
 log = logging.getLogger("bods_stream.replay")
 
 
-async def run_replay(broadcaster: Broadcaster, path: str, *, rate: float = 2.0, loop: bool = True) -> None:
+async def run_replay(
+    broadcaster: Broadcaster,
+    path: str,
+    *,
+    rate: float = 2.0,
+    loop: bool = True,
+    names: CompanyNames | None = None,
+) -> None:
     """Publish events from *path* at ~*rate* events/second; loop when exhausted."""
     p = Path(path)
     if not p.exists():
@@ -42,7 +49,7 @@ async def run_replay(broadcaster: Broadcaster, path: str, *, rate: float = 2.0, 
                 except json.JSONDecodeError:
                     continue
                 try:
-                    message = _build_message(redact_event(event))
+                    message = await process_event(event, names)
                 except Exception:  # noqa: BLE001
                     log.exception("replay: failed to map event")
                     continue

@@ -18,10 +18,12 @@ import logging
 from typing import Any
 
 import httpx
-from bods_mapper import map_psc_event, validate_shape
+from bods_mapper import company_number_from_uri, map_psc_event, validate_shape
 
 from .broadcast import Broadcaster
+from .companies import CompanyNames
 from .privacy import redact_event
+from .risk import assess
 
 log = logging.getLogger("bods_stream.stream")
 
@@ -42,10 +44,26 @@ def _build_message(event: dict[str, Any]) -> dict[str, Any]:
         "raw": event,                     # already redacted
         "bods": statements,
         "schema_valid": validate_shape(statements) == [],
+        "risk": assess(event),
     }
 
 
-async def run_stream(broadcaster: Broadcaster, api_key: str, *, timepoint: int | None = None) -> None:
+async def process_event(event: dict[str, Any], names: CompanyNames | None) -> dict[str, Any]:
+    """Enrich (company name) -> redact -> map. Shared by the live + replay paths."""
+    if names is not None and names.enabled:
+        company_name = await names.name_for(company_number_from_uri(event.get("resource_uri", "")))
+        if company_name and isinstance(event.get("data"), dict):
+            event["data"]["company_name"] = company_name
+    return _build_message(redact_event(event))
+
+
+async def run_stream(
+    broadcaster: Broadcaster,
+    api_key: str,
+    *,
+    timepoint: int | None = None,
+    names: CompanyNames | None = None,
+) -> None:
     """Long-lived task: consume the PSC stream and publish mapped events.
 
     Cancelled on app shutdown. Never returns under normal operation.
@@ -94,7 +112,7 @@ async def run_stream(broadcaster: Broadcaster, api_key: str, *, timepoint: int |
                         if isinstance(tp, int):
                             last_timepoint = tp
                         try:
-                            message = _build_message(redact_event(event))
+                            message = await process_event(event, names)
                         except Exception:  # noqa: BLE001 — never let one bad event kill the stream
                             log.exception("failed to map event")
                             continue
