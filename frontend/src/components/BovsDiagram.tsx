@@ -2,8 +2,8 @@ import type { EventView } from "../lib/eventView";
 import { BOVS_ICONS } from "../lib/bovsIcons";
 
 const LIFECYCLE_COLOR: Record<string, string> = {
-  new: "#1f8f5f",
-  updated: "#1565c0",
+  new: "#1f9d4e",
+  updated: "#3d30d4",
   closed: "#be123c",
 };
 
@@ -25,7 +25,7 @@ function FlagImg({ code, x, y, w = 18 }: { code?: string; x: number; y: number; 
           (e.currentTarget as SVGImageElement).style.display = "none";
         }}
       />
-      <rect x={x} y={y} width={w} height={h} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.7" />
+      <rect x={x} y={y} width={w} height={h} fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="0.7" />
     </g>
   );
 }
@@ -91,7 +91,7 @@ export function BovsDiagram({ view }: { view: EventView }) {
       <text x="54" y="103" textAnchor="middle" className="bovs-name">{truncate(view.partyName, 15)}</text>
 
       {/* subject company */}
-      <rect x="276" y="26" width="172" height="56" rx="8" fill="#1f232c" stroke={color} strokeWidth="2" />
+      <rect x="276" y="26" width="172" height="56" rx="8" fill="#ffffff" stroke={color} strokeWidth="2" />
       {/* jurisdiction flag, top-left corner of the company box */}
       <FlagImg code={view.jurisdiction?.code} x={285} y={33} w={18} />
       <text x="368" y="51" textAnchor="middle" className="bovs-name strong">{truncate(view.subjectName, 15)}</text>

@@ -43,9 +43,29 @@ export default function App() {
       </main>
 
       <footer className="app-foot">
-        Only a beneficial owner's name and how their interest is changing are shown;
-        address and date of birth are concealed. PSC data © Crown copyright, licensed
-        under the Open Government Licence v3.0.
+        <p className="privacy">
+          Only a beneficial owner's name and how their interest is changing are shown;
+          address and date of birth are concealed.
+        </p>
+        <p className="attributions">
+          Built on the{" "}
+          <a href="https://standard.openownership.org/en/0.4.0/" target="_blank" rel="noreferrer">
+            Beneficial Ownership Data Standard
+          </a>{" · "}
+          <a href="https://www.openownership.org/en/publications/beneficial-ownership-visualisation-system/" target="_blank" rel="noreferrer">
+            Beneficial Ownership Visualisation System
+          </a>{" · "}
+          flags by{" "}
+          <a href="https://github.com/lipis/flag-icons" target="_blank" rel="noreferrer">flag-icons</a> (MIT){" · "}
+          data from the{" "}
+          <a href="https://developer.company-information.service.gov.uk/" target="_blank" rel="noreferrer">
+            Companies House APIs
+          </a>{" "}
+          (© Crown copyright, OGL v3.0){" · "}
+          <a href="https://github.com/StephenAbbott/bods-stream" target="_blank" rel="noreferrer">
+            source on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   );
