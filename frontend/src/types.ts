@@ -23,4 +23,5 @@ export interface StreamMessage {
   bods: BodsStatement[];
   schema_valid: boolean;
   risk?: RiskSignal[];
+  prolific?: number; // distinct companies this PSC has appeared at this session (>= threshold)
 }

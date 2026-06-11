@@ -14,13 +14,14 @@ export interface Stats {
   nationalities: Record<string, number>; // individual PSC nationality tallies, by ISO code
   flagged: number; // events with >= 1 risk signal
   riskCounts: Record<string, number>; // per risk-signal-code tallies
+  maxProlific: number; // highest distinct-company count seen for any one PSC
 }
 
 export function emptyStats(): Stats {
   return {
     total: 0, individual: 0, corporate: 0, other: 0,
     ceased: 0, idChecked: 0, idVerified: 0, jurisdictions: {}, nationalities: {},
-    flagged: 0, riskCounts: {},
+    flagged: 0, riskCounts: {}, maxProlific: 0,
   };
 }
 
@@ -57,6 +58,10 @@ export function accumulate(s: Stats, msg: StreamMessage): void {
     for (const r of msg.risk) {
       s.riskCounts[r.code] = (s.riskCounts[r.code] ?? 0) + 1;
     }
+  }
+
+  if (msg.prolific && msg.prolific > s.maxProlific) {
+    s.maxProlific = msg.prolific;
   }
 }
 

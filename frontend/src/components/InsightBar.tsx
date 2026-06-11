@@ -33,6 +33,9 @@ export function InsightBar({ stats }: { stats: Stats }) {
       </div>
       <Tile value={`${pct(stats.ceased, stats.total)}%`} label="ceased" />
       <Tile value={`${pct(stats.idVerified, stats.idChecked)}%`} label="identities verified" />
+      {stats.maxProlific >= 3 && (
+        <Tile value={`${stats.maxProlific}`} label="most active PSC (companies)" />
+      )}
       {topJur.length > 0 && (
         <div className="stat wide">
           <div className="stat-lbl">corporate PSC jurisdictions</div>

@@ -35,13 +35,21 @@ export function EventCard({ msg }: { msg: StreamMessage }) {
         <span className="ts">{msg.published_at ?? ""}</span>
       </header>
 
-      {msg.risk && msg.risk.length > 0 && (
+      {((msg.risk && msg.risk.length > 0) || msg.prolific) && (
         <div className="risks">
-          {msg.risk.map((r) => (
+          {msg.risk?.map((r) => (
             <span key={r.code} className={`risk risk-${r.level}`} title={r.code}>
               {r.label}
             </span>
           ))}
+          {msg.prolific && (
+            <span
+              className="prolific"
+              title="Distinct companies this person has appeared at as a PSC during this session"
+            >
+              ⚡ PSC of {msg.prolific} companies
+            </span>
+          )}
         </div>
       )}
 

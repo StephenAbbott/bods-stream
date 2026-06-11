@@ -20,6 +20,7 @@ from typing import Any
 import httpx
 from bods_mapper import company_number_from_uri, map_psc_event, validate_shape
 
+from . import prolific
 from .broadcast import Broadcaster
 from .companies import CompanyNames
 from .privacy import redact_event
@@ -54,7 +55,12 @@ async def process_event(event: dict[str, Any], names: CompanyNames | None) -> di
         company_name = await names.name_for(company_number_from_uri(event.get("resource_uri", "")))
         if company_name and isinstance(event.get("data"), dict):
             event["data"]["company_name"] = company_name
-    return _build_message(redact_event(event))
+    # Prolific tracking uses the pre-redaction DOB for identity; it is never exposed.
+    count = prolific.observe(event)
+    message = _build_message(redact_event(event))
+    if count is not None and count >= prolific.THRESHOLD:
+        message["prolific"] = count
+    return message
 
 
 async def run_stream(
