@@ -16,9 +16,6 @@ export function InsightBar({ stats }: { stats: Stats }) {
 
   const indPct = pct(stats.individual, stats.total);
   const corpPct = pct(stats.corporate, stats.total);
-  const topJur = Object.entries(stats.jurisdictions)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
 
   return (
     <section className="insights" aria-label="live insight">
@@ -33,18 +30,12 @@ export function InsightBar({ stats }: { stats: Stats }) {
       </div>
       <Tile value={`${pct(stats.ceased, stats.total)}%`} label="ceased" />
       <Tile value={`${pct(stats.idVerified, stats.idChecked)}%`} label="identities verified" />
-      {stats.maxProlific >= 3 && (
-        <Tile value={`${stats.maxProlific}`} label="most active PSC (companies)" />
-      )}
-      {topJur.length > 0 && (
+      {stats.topProlific && stats.topProlific.count >= 3 && (
         <div className="stat wide">
-          <div className="stat-lbl">corporate PSC jurisdictions</div>
-          <div className="jur">
-            {topJur.map(([j, n]) => (
-              <span key={j} className="jur-chip">
-                {j} <b>{n}</b>
-              </span>
-            ))}
+          <div className="stat-lbl">spotted today</div>
+          <div className="prolific-name">{stats.topProlific.name}</div>
+          <div className="stat-lbl">
+            a PSC linked to {stats.topProlific.count} companies
           </div>
         </div>
       )}

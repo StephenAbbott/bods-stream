@@ -1,6 +1,6 @@
 # BODS stream
 
-**Watch UK beneficial ownership change in real time — as open, standardised data.**
+**Watch UK beneficial ownership change in real time — as open, standardised data.** Live at **[bods-stream.onrender.com](https://bods-stream.onrender.com/)**.
 
 BODS stream consumes the [Companies House Streaming API](https://developer-specs.company-information.service.gov.uk/streaming-api/reference/persons-with-significant-control/stream)
 and turns every live PSC (Person with Significant Control) change into
@@ -36,8 +36,7 @@ which a static snapshot can never show.
   the raw Companies House event ↔ BODS v0.4 statements one click away.
 - **Pause / play** with a live counter that keeps climbing while paused.
 - **Live insight bar** — individual vs corporate split, cessation rate, identity-
-  verification rate, corporate-PSC jurisdictions (live cross-border ownership),
-  and the most-active PSC this session.
+  verification rate, and the most-active ("prolific") PSC spotted today.
 - **Risk signals** (structural, no external calls) — FATF black/grey list, non-EU
   jurisdiction, trust/arrangement, nominee, super-secure (opaque), and the
   source's own sanctioned flag — as card chips and a live risk-rate box.

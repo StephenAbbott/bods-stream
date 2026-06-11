@@ -14,14 +14,14 @@ export interface Stats {
   nationalities: Record<string, number>; // individual PSC nationality tallies, by ISO code
   flagged: number; // events with >= 1 risk signal
   riskCounts: Record<string, number>; // per risk-signal-code tallies
-  maxProlific: number; // highest distinct-company count seen for any one PSC
+  topProlific: { name: string; count: number } | null; // most-active PSC + their distinct-company count
 }
 
 export function emptyStats(): Stats {
   return {
     total: 0, individual: 0, corporate: 0, other: 0,
     ceased: 0, idChecked: 0, idVerified: 0, jurisdictions: {}, nationalities: {},
-    flagged: 0, riskCounts: {}, maxProlific: 0,
+    flagged: 0, riskCounts: {}, topProlific: null,
   };
 }
 
@@ -60,8 +60,14 @@ export function accumulate(s: Stats, msg: StreamMessage): void {
     }
   }
 
-  if (msg.prolific && msg.prolific > s.maxProlific) {
-    s.maxProlific = msg.prolific;
+  if (msg.prolific && msg.prolific > (s.topProlific?.count ?? 0)) {
+    const person = (msg.bods ?? []).find((st) => st.recordType === "person");
+    const pd = (person?.recordDetails ?? {}) as any;
+    const name =
+      raw.identity_verification_details?.preferred_name ||
+      pd.names?.[0]?.fullName ||
+      "a PSC";
+    s.topProlific = { name, count: msg.prolific };
   }
 }
 

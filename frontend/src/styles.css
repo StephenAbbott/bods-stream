@@ -78,9 +78,7 @@ h1 { font-family: var(--font-head); color: var(--text); }
 .splitbar-ind { background: var(--accent); }
 .splitbar-corp { background: var(--new); }
 .stat.wide { flex: 2 1 260px; }
-.jur { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.jur-chip { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
-.jur-chip b { color: var(--accent); }
+.prolific-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; line-height: 1.2; margin: 3px 0; word-break: break-word; }
 
 /* risk box (left) + nationality strip (right) on one row */
 .risk-nat-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
