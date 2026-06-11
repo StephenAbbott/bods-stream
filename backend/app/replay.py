@@ -18,6 +18,7 @@ from pathlib import Path
 
 from .broadcast import Broadcaster
 from .companies import CompanyNames
+from .status import STATUS
 from .stream import process_event
 
 log = logging.getLogger("bods_stream.replay")
@@ -38,6 +39,7 @@ async def run_replay(
         return
     delay = 1.0 / rate if rate > 0 else 0.0
     log.info("replay mode: %s at ~%.1f events/s (loop=%s)", path, rate, loop)
+    STATUS.connected = True  # a replay is "connected" to its file for health purposes
     while True:
         with p.open(encoding="utf-8") as fh:
             for line in fh:
@@ -54,6 +56,7 @@ async def run_replay(
                     log.exception("replay: failed to map event")
                     continue
                 await broadcaster.publish(message)
+                STATUS.on_event()
                 if delay:
                     await asyncio.sleep(delay)
         if not loop:

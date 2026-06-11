@@ -40,17 +40,30 @@ h1 { font-family: var(--font-head); color: var(--text); }
 .app { max-width: 1100px; margin: 0 auto; padding: 28px 20px 64px; }
 
 .app-head {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 24px; border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 20px;
 }
+.head-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .app-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
-.tagline { margin: 8px 0 0; color: var(--muted); max-width: 660px; }
+.tagline { margin: 0; color: var(--muted); max-width: 660px; }
 
 .stats { display: flex; align-items: center; gap: 12px; color: var(--muted); white-space: nowrap; }
+.mode-status { display: inline-flex; align-items: center; gap: 8px; }
 .count { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 22px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .dot.on { background: var(--new); box-shadow: 0 0 0 3px rgba(31, 157, 78, .18); }
 .dot.off { background: var(--muted); }
+
+.mode-pill {
+  display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 12px;
+  text-transform: uppercase; letter-spacing: .04em; padding: 4px 10px; border-radius: 999px;
+}
+.mode-pill.replay { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+
+.replay-banner {
+  background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12;
+  padding: 9px 12px; border-radius: var(--radius); font-size: 13px;
+}
 
 .pause {
   background: #fff; color: var(--text); border: 1px solid var(--line);
@@ -58,6 +71,20 @@ h1 { font-family: var(--font-head); color: var(--text); }
   font-family: var(--font-body); margin-left: 8px;
 }
 .pause:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Mobile: description spans the page; live counter + pause stay compact, top-right. */
+@media (max-width: 640px) {
+  .app { padding: 18px 14px 48px; }
+  .app-head h1 { font-size: 20px; }
+  .head-top { align-items: flex-start; gap: 10px; }
+  .stats { gap: 8px; }
+  .count { font-size: 16px; }
+  .count-unit { display: none; }       /* number only, to save width */
+  .live-label { display: none; }        /* the dot alone reads as "live" */
+  .pause { padding: 6px 9px; font-size: 13px; margin-left: 2px; }
+  .pause-label { display: none; }       /* icon-only pause on mobile */
+  .tagline { font-size: 13px; }
+}
 
 .paused-banner {
   background: rgba(61, 48, 212, .07); border: 1px solid var(--accent);

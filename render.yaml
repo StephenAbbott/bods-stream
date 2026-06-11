@@ -19,3 +19,8 @@ services:
         sync: false
       - key: BODS_STREAM_CORS_ORIGIN
         value: "*"
+    # Replay mode for demos when the live CH stream is quiet or down. A curated
+    # sample ships in the image at /app/sample_psc_stream.jsonl. To switch the
+    # site to replay, add an env var in the Render dashboard:
+    #   BODS_STREAM_REPLAY_FILE = /app/sample_psc_stream.jsonl
+    # (when set it takes priority over live; delete it to return to the live feed).

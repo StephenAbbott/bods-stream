@@ -154,7 +154,7 @@ All via environment variables (`backend/.env` locally):
 |----------|---------|
 | `COMPANIES_HOUSE_STREAM_KEY` | Streaming API key (the live PSC feed). |
 | `COMPANIES_HOUSE_API_KEY` | Public Data API (REST) key — enables company names. Without it, events show "Company &lt;number&gt;". |
-| `BODS_STREAM_REPLAY_FILE` | Path to a captured `.jsonl`; replays it instead of connecting live (takes priority). |
+| `BODS_STREAM_REPLAY_FILE` | Path to a captured `.jsonl`; replays it instead of connecting live (takes priority). A curated sample ships at `sample_psc_stream.jsonl` (in the Docker image: `/app/sample_psc_stream.jsonl`). When replay is active the header shows an amber **replay** flag and banner. |
 | `BODS_STREAM_REPLAY_RATE` | Replay events/second (default `2`). |
 | `BODS_STREAM_PROLIFIC_THRESHOLD` | Distinct companies before a PSC is "prolific" (default `3`). |
 | `BODS_STREAM_CORS_ORIGIN` | Allowed CORS origin (default `*`; only needed if frontend is a separate origin). |
@@ -190,6 +190,18 @@ On [Render](https://render.com): **New + → Blueprint**, pick this repo, and se
 it to **one instance / one worker** (in-memory state). The free plan spins down
 when idle — fine for a quick share, but the stream stops while asleep; use a paid
 plan (or an external uptime pinger on `/api/health`) for an always-on public demo.
+
+**Replay for demos.** The PSC stream goes quiet out of UK office hours (and the
+upstream feed can stall). To guarantee activity — e.g. for a talk — add
+`BODS_STREAM_REPLAY_FILE=/app/sample_psc_stream.jsonl` in the Render dashboard:
+the bundled sample (lifecycle, prolific, and risk-signal examples) loops through
+the identical redact → map → risk pipeline, and the header flags **replay** so
+viewers can tell it apart from live data. Delete the var to return to live.
+
+`/api/health` reports the live connection state — `mode` (live/replay),
+`connected`, `last_status_code`, `lines_seen`, `last_event_s_ago`, and the REST
+key's `names_last_status` — so you can tell "connected but quiet" from a key or
+upstream problem at a glance.
 
 ## Dependencies
 

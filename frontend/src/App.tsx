@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSSE } from "./lib/useSSE";
 import { EventCard } from "./components/EventCard";
 import { InsightBar } from "./components/InsightBar";
@@ -7,27 +7,56 @@ import { RiskBox } from "./components/RiskBox";
 
 export default function App() {
   const [paused, setPaused] = useState(false);
+  const [mode, setMode] = useState<"live" | "replay" | "idle" | null>(null);
   const { messages, connected, count, stats } = useSSE("/api/events", { paused });
+
+  // One-shot read of the feed mode (live vs replay) so the header can flag it.
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((d) => setMode(d?.stream?.mode ?? null))
+      .catch(() => {});
+  }, []);
+
+  const isReplay = mode === "replay";
 
   return (
     <div className="app">
       <header className="app-head">
-        <div>
+        <div className="head-top">
           <h1>BODS stream</h1>
-          <p className="tagline">
-            Watch UK beneficial ownership changing in real time — every Companies House
-            Person with Significant Control (PSC) event, mapped live to the Beneficial
-            Ownership Data Standard.
-          </p>
+          <div className="stats">
+            {isReplay ? (
+              <span className="mode-pill replay" title="Replaying captured sample events">
+                ⟳ replay
+              </span>
+            ) : (
+              <span className="mode-status">
+                <span className={`dot ${connected ? "on" : "off"}`} />
+                <span className="live-label">{connected ? "live" : "connecting…"}</span>
+              </span>
+            )}
+            <span className="count">
+              {count.toLocaleString()}
+              <span className="count-unit"> events</span>
+            </span>
+            <button className="pause" onClick={() => setPaused((p) => !p)}>
+              <span aria-hidden="true">{paused ? "▶" : "⏸"}</span>
+              <span className="pause-label">{paused ? " Resume" : " Pause"}</span>
+            </button>
+          </div>
         </div>
-        <div className="stats">
-          <span className={`dot ${connected ? "on" : "off"}`} />
-          <span>{connected ? "live" : "connecting…"}</span>
-          <span className="count">{count.toLocaleString()} events</span>
-          <button className="pause" onClick={() => setPaused((p) => !p)}>
-            {paused ? "▶ Resume" : "⏸ Pause"}
-          </button>
-        </div>
+        <p className="tagline">
+          Watch UK beneficial ownership changing in real time — every Companies House
+          Person with Significant Control (PSC) event, mapped live to the Beneficial
+          Ownership Data Standard.
+        </p>
+        {isReplay && (
+          <div className="replay-banner">
+            <strong>Replay mode</strong> — these are captured sample PSC events looping
+            through the live pipeline, not the live Companies House stream.
+          </div>
+        )}
       </header>
 
       <InsightBar stats={stats} />
