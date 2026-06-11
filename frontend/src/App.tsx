@@ -3,6 +3,7 @@ import { useSSE } from "./lib/useSSE";
 import { EventCard } from "./components/EventCard";
 import { InsightBar } from "./components/InsightBar";
 import { NationalityBar } from "./components/NationalityBar";
+import { RiskBox } from "./components/RiskBox";
 
 export default function App() {
   const [paused, setPaused] = useState(false);
@@ -29,7 +30,10 @@ export default function App() {
       </header>
 
       <InsightBar stats={stats} />
-      <NationalityBar stats={stats} />
+      <div className="risk-nat-row">
+        <RiskBox stats={stats} />
+        <NationalityBar stats={stats} />
+      </div>
 
       {paused && (
         <div className="paused-banner">

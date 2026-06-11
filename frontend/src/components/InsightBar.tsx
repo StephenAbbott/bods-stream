@@ -1,16 +1,6 @@
 import type { Stats } from "../lib/stats";
 import { pct } from "../lib/stats";
 
-const RISK_SHORT: Record<string, string> = {
-  FATF_BLACK_LIST: "FATF black",
-  FATF_GREY_LIST: "FATF grey",
-  NON_EU_JURISDICTION: "non-EU",
-  TRUST_OR_ARRANGEMENT: "trust",
-  NOMINEE: "nominee",
-  OPAQUE_OWNERSHIP: "super-secure",
-  SANCTIONED: "sanctioned",
-};
-
 function Tile({ value, label }: { value: string; label: string }) {
   return (
     <div className="stat">
@@ -52,21 +42,6 @@ export function InsightBar({ stats }: { stats: Stats }) {
                 {j} <b>{n}</b>
               </span>
             ))}
-          </div>
-        </div>
-      )}
-      {Object.keys(stats.riskCounts).length > 0 && (
-        <div className="stat wide">
-          <div className="stat-val">{pct(stats.flagged, stats.total)}%</div>
-          <div className="stat-lbl">events with a risk signal</div>
-          <div className="jur">
-            {Object.entries(stats.riskCounts)
-              .sort((a, b) => b[1] - a[1])
-              .map(([code, n]) => (
-                <span key={code} className="jur-chip">
-                  {RISK_SHORT[code] ?? code} <b>{n}</b>
-                </span>
-              ))}
           </div>
         </div>
       )}
