@@ -43,7 +43,7 @@ which a static snapshot can never show.
 - **Prolific PSC** — a stream-native signal: when one person turns up as a PSC of
   several companies this session, the card flags it and the insight bar tracks
   the most active.
-- **PSC nationalities** — a live top-20 flag tally (hover a flag for the country).
+- **PSC nationalities** — a live top-15 flag tally (hover a flag for the country).
 
 ## Companies House APIs used
 
