@@ -1,6 +1,6 @@
 # BODS stream
 
-**Watch UK beneficial ownership change in real time — as open, standardised data.** Live at **[bods-stream.onrender.com](https://bods-stream.onrender.com/)**.
+**Watch UK beneficial ownership change in real time — as open, standardised data.** Live at **[bods.stream](https://bods.stream/)**.
 
 BODS stream consumes the [Companies House Streaming API](https://developer-specs.company-information.service.gov.uk/streaming-api/reference/persons-with-significant-control/stream)
 and turns every live PSC (Person with Significant Control) change into
