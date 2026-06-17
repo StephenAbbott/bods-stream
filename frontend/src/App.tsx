@@ -77,7 +77,9 @@ export default function App() {
 
       <main className="feed">
         {messages.map((msg, i) => (
-          <EventCard key={`${msg.timepoint}-${i}`} msg={msg} />
+          // Key by position so that in-place card replacements (deduplication)
+          // update the existing component rather than remounting it.
+          <EventCard key={i} msg={msg} />
         ))}
       </main>
 
