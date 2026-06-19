@@ -78,7 +78,6 @@ async def process_event(event: dict[str, Any], names: CompanyNames | None) -> di
             redact_event(lc["base_event"]),
             stable_psc_id=lc["stable"],
             record_status=lc["status"],
-            replaces_statement_id=lc["replaces"],
             end_date=lc["end_date"],
         )
         statements = list(bundle)

@@ -20,7 +20,8 @@ ceasing, live, captured as an append-only open standard.**
 Companies House changes. BODS stream's angle is the **change model**: the PSC
 stream is the only public, real-time feed of beneficial-ownership changes
 anywhere, and BODS is purpose-built to represent change — `recordStatus`
-new/updated/closed, `replacesStatements`, one statement per point in time. So you
+new/updated/closed with a stable `recordId` linking each record's versions, one
+statement per point in time. So you
 don't just see *that* something changed; you watch a beneficial owner appear
 (`new`), be re-filed (`updated`), and be removed (`closed`) — the full lifecycle,
 which a static snapshot can never show.
@@ -95,8 +96,8 @@ The PSC stream has no notion of new/updated/closed — a re-filing is just anoth
 `changed` event, and a removal is a `deleted` event with no data. BODS stream
 keeps an in-memory map keyed by the PSC's stable id (`resource_uri`) so it can:
 
-- emit `updated` (not a second `new`) when a PSC we've seen is re-filed, with
-  `replacesStatements` pointing at the prior statement;
+- emit `updated` (not a second `new`) when a PSC we've seen is re-filed, carrying
+  the same stable `recordId` as the prior statement (how BODS 0.4 links versions);
 - emit a `closed` record when a `deleted` event arrives — **rebuilt from the
   last-seen state**, so it still shows who the former owner was;
 - keep a single stable `recordId` across the whole `new → updated → closed`
